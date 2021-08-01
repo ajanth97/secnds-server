@@ -22,7 +22,7 @@ func main() {
 		SigningKey: []byte(key),
 		Skipper: func(c echo.Context) bool {
 			// Skip authentication for signup and login requests
-			if c.Path() == "/login" || c.Path() == "/signup" || c.Path() == "/" || c.Path() == "/add" {
+			if c.Path() == "/login" || c.Path() == "/signup" || c.Path() == "/listing/all" || c.Path() == "/listing/add" || c.Path() == "/listing/:id" {
 				return true
 			}
 			return false
@@ -42,7 +42,8 @@ func main() {
 	}
 	listing_snapshots := fs.Collection("listings").Snapshots(ctx)
 	var listings model.Listings
-	go listings.FirestoreListingListen(listing_snapshots)
+	var listingsMap model.ListingsMap
+	go model.FirestoreListingListen(listing_snapshots, &listings, &listingsMap)
 
 	// Routes
 	//e.POST("/signup", h.Signup)
@@ -50,8 +51,9 @@ func main() {
 	//e.POST("/follow/:id", h.Follow)
 	//e.POST("/posts", h.CreatePost)
 	//e.GET("/feed", h.FetchPost)
-	e.GET("/", handler.FetchAllListings(&listings))
-	e.POST("/add", handler.CreateListing)
+	e.GET("/listing/:id", handler.FetchListing(&listingsMap))
+	e.GET("/listing/all", handler.FetchAllListings(&listings))
+	e.POST("/listing/add", handler.CreateListing)
 
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))

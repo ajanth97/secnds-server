@@ -17,6 +17,18 @@ func FetchAllListings(l *model.Listings) echo.HandlerFunc {
 
 }
 
+func FetchListing(lm *model.ListingsMap) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		listingMap := *lm
+		id := c.Param("id")
+		listing, isListing := listingMap[id]
+		if isListing {
+			return c.JSON(http.StatusOK, listing)
+		}
+		return c.JSON(http.StatusNotFound, "Invalid Listing ID")
+	}
+}
+
 func CreateListing(c echo.Context) error {
 	l := new(model.Listing)
 	if err := c.Bind(l); err != nil {
