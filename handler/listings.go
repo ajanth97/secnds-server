@@ -25,7 +25,7 @@ func FetchListing(lm *model.ListingsMap) echo.HandlerFunc {
 		if isListing {
 			return c.JSON(http.StatusOK, listing)
 		}
-		return c.JSON(http.StatusNotFound, "Invalid Listing ID")
+		return &echo.HTTPError{Code: http.StatusNotFound, Message: "Invalid Listing ID"}
 	}
 }
 

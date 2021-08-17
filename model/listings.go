@@ -10,10 +10,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type User struct {
-	Name string
-}
-
 type Listing struct {
 	ID            string    `firestore:"id"`
 	Title         string    `firestore:"title"`

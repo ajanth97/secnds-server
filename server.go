@@ -40,13 +40,21 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error initializing database client:", err)
 	}
+
+	user_collections := fs.Collection("users")
+	user_snapshots := user_collections.Snapshots(ctx)
+	var users model.Users
+	var usersMap model.UsersMap
+	var usersEmailMap model.UsersEmailMap
+	go model.FirestoreUserListen(user_snapshots, &users, &usersMap, &usersEmailMap)
+
 	listing_snapshots := fs.Collection("listings").Snapshots(ctx)
 	var listings model.Listings
 	var listingsMap model.ListingsMap
 	go model.FirestoreListingListen(listing_snapshots, &listings, &listingsMap)
 
 	// Routes
-	//e.POST("/signup", h.Signup)
+	e.POST("/signup", handler.SignUp(user_collections, &usersEmailMap))
 	//e.POST("/login", h.Login)
 	//e.POST("/follow/:id", h.Follow)
 	//e.POST("/posts", h.CreatePost)
