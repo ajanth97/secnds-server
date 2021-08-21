@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"secnds-server/mailer"
 	"secnds-server/model"
 	"time"
 
@@ -86,6 +87,7 @@ func SignUp(userCollection *firestore.CollectionRef, userEmap *model.UsersEmailM
 			log.Printf("Error occured when adding user to firestore DB : %s", err)
 			return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "Error caused when storing data to DB"}
 		}
+		go mailer.SendMail(u.FirstName, u.EmailAddress, "Hello from secnds !")
 		return c.JSON(http.StatusCreated, u)
 	}
 
