@@ -15,9 +15,11 @@ import (
 
 const (
 	jwt_secret = "JWT_SECRET"
+	port_      = "PORT"
 )
 
 var jwtSecret []byte = env.GetByte(jwt_secret)
+var port string = env.Get(port_)
 
 func main() {
 	e := echo.New()
@@ -70,5 +72,5 @@ func main() {
 	e.GET("/myaccount", handler.MyAccount(&usersMap))
 
 	// Start server
-	e.Logger.Fatal(e.Start(":1323"))
+	e.Logger.Fatal(e.Start(":" + port))
 }
