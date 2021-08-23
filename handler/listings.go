@@ -9,12 +9,10 @@ import (
 )
 
 func FetchAllListings(l *model.Listings) echo.HandlerFunc {
-
 	return func(c echo.Context) error {
 		// Retrieve posts from Listings pointer
 		return c.JSON(http.StatusOK, l)
 	}
-
 }
 
 func FetchListing(lm *model.ListingsMap) echo.HandlerFunc {

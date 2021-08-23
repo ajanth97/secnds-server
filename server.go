@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 
+	"secnds-server/env"
 	"secnds-server/handler"
 	"secnds-server/model"
 
@@ -12,13 +13,16 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
+const jwt_secret = "JWT_SECRET"
+
+var jwtSecret []byte = env.GetByte(jwt_secret)
+
 func main() {
-	key := "key"
 	e := echo.New()
 	e.Logger.SetLevel(log.ERROR)
 	e.Use(middleware.Logger())
 	e.Use(middleware.JWTWithConfig(middleware.JWTConfig{
-		SigningKey: []byte(key),
+		SigningKey: jwtSecret,
 		Skipper: func(c echo.Context) bool {
 			// Skip authentication for signup and login requests
 			if c.Path() == "/login" || c.Path() == "/signup" || c.Path() == "/listing/all" || c.Path() == "/listing/add" || c.Path() == "/listing/:id" {
@@ -54,13 +58,14 @@ func main() {
 
 	// Routes
 	e.POST("/signup", handler.SignUp(user_collections, &usersEmailMap))
-	//e.POST("/login", h.Login)
+	e.POST("/login", handler.Login(&usersEmailMap))
 	//e.POST("/follow/:id", h.Follow)
 	//e.POST("/posts", h.CreatePost)
 	//e.GET("/feed", h.FetchPost)
 	e.GET("/listing/:id", handler.FetchListing(&listingsMap))
 	e.GET("/listing/all", handler.FetchAllListings(&listings))
 	e.POST("/listing/add", handler.CreateListing)
+	e.GET("/myaccount", handler.MyAccount(&usersMap))
 
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))

@@ -23,3 +23,9 @@ func GetInt(envName string) int {
 	}
 	return intValue
 }
+
+func GetByte(envName string) []byte {
+	stringValue := Get(envName)
+	byteValue := []byte(stringValue)
+	return byteValue
+}
