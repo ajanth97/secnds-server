@@ -11,11 +11,16 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
+	"google.golang.org/api/option"
 )
 
-const jwt_secret = "JWT_SECRET"
+const (
+	jwt_secret    = "JWT_SECRET"
+	firebase_cred = "FIREBASE_CRED"
+)
 
 var jwtSecret []byte = env.GetByte(jwt_secret)
+var firebaseCred []byte = env.GetByte(firebase_cred)
 
 func main() {
 	e := echo.New()
@@ -35,7 +40,7 @@ func main() {
 	// Database connection
 	ctx := context.Background()
 	//Initializing Firebase
-	app, err := firebase.NewApp(ctx, nil)
+	app, err := firebase.NewApp(ctx, nil, option.WithCredentialsJSON(firebaseCred))
 	if err != nil {
 		log.Fatalf("error initializing app: %v\n", err)
 	}
