@@ -25,6 +25,10 @@ func main() {
 	e := echo.New()
 	e.Logger.SetLevel(log.ERROR)
 	e.Use(middleware.Logger())
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins:     []string{"https://alpha.secnds.com", "http://127.0.0.1:8000/"},
+		AllowCredentials: true,
+	}))
 	e.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		SigningKey: jwtSecret,
 		Skipper: func(c echo.Context) bool {
