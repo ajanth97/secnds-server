@@ -27,7 +27,7 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:     []string{"https://alpha.secnds.com", "http://127.0.0.1:8000/"},
-		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAccessControlRequestHeaders, echo.HeaderAccessControlAllowOrigin},
 		AllowMethods:     []string{echo.GET, echo.POST},
 		AllowCredentials: true,
 	}))
