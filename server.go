@@ -39,7 +39,7 @@ func main() {
 		AllowOrigins:     []string{"http://127.0.0.1:8000", "https://alpha.secnds.com"},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAccessControlRequestHeaders, echo.HeaderAccessControlAllowOrigin, echo.HeaderAccessControlAllowHeaders, echo.HeaderAccessControlAllowMethods},
 		AllowCredentials: true,
-		AllowMethods:     []string{echo.GET, echo.POST},
+		AllowMethods:     []string{"GET", "POST"},
 	}))
 
 	// Database connection
