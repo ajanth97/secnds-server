@@ -11,11 +11,11 @@ import (
 )
 
 type Listing struct {
-	ID            string    `firestore:"id"`
-	Title         string    `firestore:"title"`
-	PostedAt      time.Time `firestore:"timestamp"`
-	Price         string    `firestore:"price"`
-	ListingImages []string  `firestore:"listingImages"`
+	ID            string    `firestore:"id" json:"id"`
+	Title         string    `firestore:"title" json:"title"`
+	PostedAt      time.Time `firestore:"timestamp" json:"postedAt"`
+	Price         string    `firestore:"price" json:"price"`
+	ListingImages []string  `firestore:"listingImages" json:"listingImages"`
 }
 
 type Listings []Listing

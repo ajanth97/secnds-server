@@ -126,8 +126,12 @@ func SignUp(userCollection *firestore.CollectionRef, userEmap *model.UsersEmailM
 
 func Login(userEmap *model.UsersEmailMap) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		email := c.FormValue("email")
-		password := c.FormValue("password")
+		u := new(model.User)
+		if err := c.Bind(u); err != nil {
+			return err
+		}
+		email := u.EmailAddress
+		password := u.Password
 		if emailExists(email, userEmap) && passwordValid(email, password, userEmap) {
 			user := getUserFromEmail(email, userEmap)
 			jwtToken := token.GetJwtToken(user.ID, user.EmailAddress)
