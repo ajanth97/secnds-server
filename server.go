@@ -25,6 +25,12 @@ func main() {
 	e := echo.New()
 	e.Logger.SetLevel(log.ERROR)
 	e.Use(middleware.Logger())
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins:     []string{"http://127.0.0.1:8000", "https://alpha.secnds.com"},
+		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAccessControlRequestHeaders, echo.HeaderAccessControlAllowOrigin},
+		AllowCredentials: true,
+		AllowMethods:     []string{"GET", "POST"},
+	}))
 	e.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		SigningKey: jwtSecret,
 		Skipper: func(c echo.Context) bool {
@@ -34,12 +40,6 @@ func main() {
 			}
 			return false
 		},
-	}))
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{"http://127.0.0.1:8000", "https://alpha.secnds.com"},
-		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAccessControlRequestHeaders, echo.HeaderAccessControlAllowOrigin},
-		AllowCredentials: true,
-		AllowMethods:     []string{"GET", "POST"},
 	}))
 
 	// Database connection
