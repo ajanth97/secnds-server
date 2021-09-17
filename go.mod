@@ -9,8 +9,11 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.3.0
+	github.com/gorilla/mux v1.7.3 // indirect
+	github.com/gorilla/sessions v1.2.1
 	github.com/labstack/echo/v4 v4.4.0
 	github.com/labstack/gommon v0.3.0
+	github.com/markbates/goth v1.68.0
 	github.com/mattn/go-isatty v0.0.13 // indirect
 	github.com/nbutton23/zxcvbn-go v0.0.0-20210217022336-fa2cb2858354
 	github.com/stretchr/testify v1.7.0 // indirect

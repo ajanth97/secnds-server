@@ -1,17 +1,21 @@
 package handler
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"secnds-server/customgothic"
 	"secnds-server/mailer"
 	"secnds-server/model"
 	"secnds-server/token"
+
+	jwtv3 "github.com/dgrijalva/jwt-go"
+
 	"time"
 
 	"net/mail"
 
 	"cloud.google.com/go/firestore"
-	jwtv3 "github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/nbutton23/zxcvbn-go"
@@ -67,8 +71,7 @@ func SignUp(userCollection *firestore.CollectionRef, userEmap *model.UsersEmailM
 		if err := c.Bind(u); err != nil {
 			return err
 		}
-		id := uuid.NewString()
-		u.ID = id
+		u.ID = uuid.NewString()
 		if u.EmailAddress == "" {
 			return &echo.HTTPError{Code: http.StatusBadRequest, Message: "Email field cannot be empty"}
 
@@ -112,15 +115,15 @@ func SignUp(userCollection *firestore.CollectionRef, userEmap *model.UsersEmailM
 		u.Password = string(passwordHash)
 		u.CreatedAt = time.Now()
 
-		_, err = userCollection.Doc(u.ID).Set(c.Request().Context(), u)
+		err = model.CreateUserInDB(userCollection, c, u)
 		if err != nil {
-			// Handle error when cannot store user data to Firestore DB
-			log.Printf("Error occured when adding user to firestore DB : %s", err)
 			return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "Error caused when storing data to DB"}
 		}
 		jwtToken := token.GetJwtToken(u.ID, u.EmailAddress)
 		go mailer.SendMail(u.FirstName, u.EmailAddress, "Hello from secnds !")
-		return c.JSON(http.StatusCreated, jwtToken)
+		return c.JSON(http.StatusCreated, echo.Map{
+			"token": jwtToken,
+		})
 	}
 }
 
@@ -140,6 +143,49 @@ func Login(userEmap *model.UsersEmailMap) echo.HandlerFunc {
 			})
 		}
 		return c.JSON(http.StatusUnauthorized, "Invalid Email or Password")
+	}
+}
+
+func LoginWithThirdParty() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// try to get the user without re-authenticating
+		log.Println("Starting Auth")
+		customgothic.BeginAuthHandler(c)
+		return c.NoContent(http.StatusOK)
+	}
+}
+
+func LoginWithThirdPartyCallBack(userCollection *firestore.CollectionRef, userEmap *model.UsersEmailMap) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		user, err := customgothic.CompleteUserAuth(c)
+		if err != nil {
+			fmt.Errorf("Error occured while trying to complete authentication %v", err)
+			return c.JSON(http.StatusUnauthorized, "Error occured while trying to complete authentication")
+		}
+		email := user.Email
+		if emailExists(email, userEmap) {
+			ourUser := getUserFromEmail(email, userEmap)
+			jwtToken := token.GetJwtToken(ourUser.ID, email)
+			return c.JSON(http.StatusOK, echo.Map{
+				"token": jwtToken,
+			})
+		} else {
+			log.Println("User data doesnt exist so new user !")
+			newUser := new(model.User)
+			newUser.ID = uuid.NewString()
+			newUser.EmailAddress = user.Email
+			newUser.FirstName = user.FirstName
+			newUser.LastName = user.LastName
+			err = model.CreateUserInDB(userCollection, c, newUser)
+			if err != nil {
+				return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "Error caused when storing data to DB"}
+			}
+			jwtToken := token.GetJwtToken(newUser.ID, newUser.EmailAddress)
+			go mailer.SendMail(newUser.FirstName, newUser.EmailAddress, "Hello from secnds !")
+			return c.JSON(http.StatusOK, echo.Map{
+				"token": jwtToken,
+			})
+		}
 	}
 }
 

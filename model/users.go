@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/firestore"
+	"github.com/labstack/echo/v4"
 	"google.golang.org/api/iterator"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -24,6 +25,16 @@ type User struct {
 type Users []User
 type UsersMap map[string]User
 type UsersEmailMap map[string]User
+
+func CreateUserInDB(userCollection *firestore.CollectionRef, c echo.Context, user *User) error {
+	_, err := userCollection.Doc(user.ID).Set(c.Request().Context(), user)
+	if err != nil {
+		// Handle error when cannot store user data to Firestore DB
+		log.Printf("Error occured when adding user to firestore DB : %s", err)
+		return err
+	}
+	return nil
+}
 
 func FirestoreUserListen(user_snapshots *firestore.QuerySnapshotIterator, current_users_arr *Users, current_users_map *UsersMap, current_users_emap *UsersEmailMap) {
 	for {
