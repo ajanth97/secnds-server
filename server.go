@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"io"
+	"text/template"
 
 	"secnds-server/env"
 	"secnds-server/handler"
@@ -35,6 +37,14 @@ var googleSecret = env.Get(google_secret)
 var facebookKey = env.Get(facebook_key)
 var facebookSecret = env.Get(facebook_secret)
 
+type Template struct {
+	templates *template.Template
+}
+
+func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	return t.templates.ExecuteTemplate(w, name, data)
+}
+
 func main() {
 	e := echo.New()
 	e.Logger.SetLevel(log.ERROR)
@@ -56,6 +66,10 @@ func main() {
 			return false
 		},
 	}))
+	t := &Template{
+		templates: template.Must(template.ParseGlob("public/views/*.html")),
+	}
+	e.Renderer = t
 
 	//e.Use(session.Middleware(sessions.NewCookieStore([]byte("secret"))))
 	store := sessions.NewCookieStore([]byte("secret"))

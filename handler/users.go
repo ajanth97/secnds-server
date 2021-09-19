@@ -166,9 +166,7 @@ func LoginWithThirdPartyCallBack(userCollection *firestore.CollectionRef, userEm
 		if emailExists(email, userEmap) {
 			ourUser := getUserFromEmail(email, userEmap)
 			jwtToken := token.GetJwtToken(ourUser.ID, email)
-			return c.JSON(http.StatusOK, echo.Map{
-				"token": jwtToken,
-			})
+			return c.Render(http.StatusOK, "Hello", jwtToken)
 		} else {
 			log.Println("User data doesnt exist so new user !")
 			newUser := new(model.User)
